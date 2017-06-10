@@ -4,20 +4,143 @@
       .buttons
     editor(ref="editor" v-model="code" @init="init()" lang="javascript" theme="tomorrow" width="100%" height="100%")
     button.exec(@click="run") Run Code
+    .console
 </template>
 
 <script>
   import AceEditor from "vue2-ace-editor"
 
+  import "vue2-ace-editor/node_modules/brace/mode/javascript"
+  import "vue2-ace-editor/node_modules/brace/theme/tomorrow"
+
+  /* eslint no-unused-vars: 0 */
+
   const initialCode = `/*
   Welcome to Code4Fun!
+  We're going to create our first game!
 */
 
-// "const" is how you define a variable.
-const velocity = 0.0
+// Could you add in some bricks?
+// It feels kinda lonely here.
+
+window.addBricks = function() {
+  const rows = 4
+  const columns = 16
+}
+
+window.create = function() {
+  init()
+}
+
+window.update = function() {
+
+}
 
 // This will start the game.
 start()
+`
+
+  const completedCode = `/*
+  Welcome to Code4Fun!
+*/
+
+// Could you add in some bricks?
+// It feels kinda lonely here.
+
+window.addBricks = function() {
+  const rows = 4
+  const columns = 16
+
+  for (let y = 0; y < rows; y += 1) {
+    for (let x = 0; x < columns; x += 1) {
+      const posX = 120 + (x * 36)
+      const posY = 100 + (y * 52)
+      const type = \`brick_\${y + 1}_1.png\`
+
+      brick = bricks.create(posX, posY, "breakout", type)
+      brick.body.bounce.set(1)
+      brick.body.immovable = true
+    }
+  }
+}
+
+// What should happen if we launches the ball off the paddle?
+
+window.releaseBall = function() {
+  if (ballOnPaddle) {
+    ballOnPaddle = false
+    setVelocity(75, 300)
+    ball.animations.play("spin")
+    introText.visible = false
+  }
+}
+
+// What should we do if the ball hit a brick?
+
+window.ballHitBrick = function(ball, brick) {
+  brick.kill()
+  score += 10
+  scoreText.text = \`Score: \${score}\`
+
+  // Are they any bricks left?
+  if (bricks.countLiving() === 0) {
+    // New level starts
+    score += 1000
+    scoreText.text = \`Score: \${score}\`
+    introText.text = "- Next Level -"
+
+    // Let"s move the ball back to the paddle
+    ballOnPaddle = true
+    ball.body.velocity.set(0)
+    moveBall(paddle.x + 16, paddle.y - 16)
+    ball.animations.stop()
+
+    //  And bring the bricks back from the dead :)
+    bricks.callAll("revive")
+  }
+}
+
+// What should we do if the ball goes back and land on the paddle?
+
+window.ballHitPaddle = function(ball, paddle) {
+  let diff = 0
+
+  if (ball.x < paddle.x) {
+    //  Ball is on the left-hand side of the paddle
+    diff = paddle.x - ball.x
+    ball.body.velocity.x = (-10 * diff)
+  } else if (ball.x > paddle.x) {
+    //  Ball is on the right-hand side of the paddle
+    diff = ball.x - paddle.x
+    ball.body.velocity.x = (10 * diff)
+  } else {
+    //  Ball is perfectly in the middle
+    //  Add a little random X to stop it bouncing straight up!
+    ball.body.velocity.x = 2 + (Math.random() * 8)
+  }
+}
+
+window.create = function() {
+  init()
+
+  addBricks()
+  addPaddle()
+  addBall()
+
+  addIntroText()
+
+  // Trigger releaseBall on Input
+  game.input.onDown.add(releaseBall, this)
+}
+
+window.update = function() {
+  movePaddle()
+  handleBallOnPaddleCollision()
+}
+
+// This will start the game.
+start()
+
 `
 
   export default {
@@ -30,12 +153,8 @@ start()
     methods: {
       init() {
         const editor = this.$refs.editor.editor
-        /* eslint global-require: 0 */
 
-        require("vue2-ace-editor/node_modules/brace/mode/javascript")
-        require("vue2-ace-editor/node_modules/brace/theme/tomorrow")
-
-        editor.setOptions({fontSize: "1.1em"})
+        editor.setOptions({fontSize: "1em"})
       },
       run() {
         try {
