@@ -1,7 +1,6 @@
 <template lang="pug">
   .root
-    .editor
-      code-editor
+    code-editor
     .game(ref="gameview")
 </template>
 
@@ -14,34 +13,60 @@
 
   /* eslint-disable */
 
-  let ball
-  let paddle
-  let brick
-  let bricks
+  window.game = null
+  window.ball = null
+  window.paddle = null
+  window.brick = null
+  window.bricks = null
 
-  let ballOnPaddle = true
+  window.ballOnPaddle = true
 
-  let lives = 19
-  let score = 0
+  window.lives = 19
+  window.score = 0
 
-  let scoreText
-  let livesText
-  let introText
+  window.scoreText = null
+  window.livesText = null
+  window.introText = null
 
-  function releaseBall() {
+  // Predefined: Phaser Game Initialization
+  window.init = function() {
+    game.physics.startSystem(Phaser.Physics.ARCADE)
+    game.physics.arcade.checkCollision.down = false
+
+    bricks = game.add.group()
+    bricks.enableBody = true
+    bricks.physicsBodyType = Phaser.Physics.ARCADE
+  }
+
+  // Predefined setVelocity(x, y)
+  window.setVelocity = function(x, y) {
+    ball.body.velocity.y = -y
+    ball.body.velocity.x = -x
+  }
+
+  // Predefined: Move Ball
+  window.moveBall = function(x, y) {
+    ball.x = x
+    ball.y = y
+  }
+
+  // Self Implement: Release Ball on Input
+  window.releaseBall = function() {
     if (ballOnPaddle) {
       ballOnPaddle = false
-      ball.body.velocity.y = -300
-      ball.body.velocity.x = -75
+      setVelocity(-75, -300)
       ball.animations.play("spin")
       introText.visible = false
     }
   }
 
-  function ballLost() {
-    lives--
-    livesText.text = "lives: " + lives
+  // Self Implement: If the ball is lost
+  window.ballLost = function() {
+    // Decrease Lives
+    lives -= 1
+    livesText.text = `Lives: ${lives}`
 
+    // If no more lives, game over. Else, reset the game.
     if (lives === 0) {
       gameOver()
     } else {
@@ -51,29 +76,30 @@
     }
   }
 
-  function gameOver() {
+  // Self Implement: Game Over Screen
+  window.gameOver = function() {
     ball.body.velocity.setTo(0, 0)
     introText.text = "Game Over!"
     introText.visible = true
   }
 
-  function ballHitBrick(_ball, _brick) {
+  // Self Implement: Collision Detection
+  window.ballHitBrick = function(_ball, _brick) {
     _brick.kill()
     score += 10
-    scoreText.text = "score: " + score
+    scoreText.text = `Score: ${score}`
 
-    //  Are they any bricks left?
-    if (bricks.countLiving() == 0) {
-      //  New level starts
+    // Are they any bricks left?
+    if (bricks.countLiving() === 0) {
+      // New level starts
       score += 1000
-      scoreText.text = "score: " + score
+      scoreText.text = `Score: ${score}`
       introText.text = "- Next Level -"
 
-      //  Let"s move the ball back to the paddle
+      // Let"s move the ball back to the paddle
       ballOnPaddle = true
       ball.body.velocity.set(0)
-      ball.x = paddle.x + 16
-      ball.y = paddle.y - 16
+      moveBall(paddle.x + 16, paddle.y - 16)
       ball.animations.stop()
 
       //  And bring the bricks back from the dead :)
@@ -81,7 +107,8 @@
     }
   }
 
-  function ballHitPaddle (_ball, _paddle) {
+  // Self Implement: Ball to Paddle Collision Detection
+  window.ballHitPaddle = function(_ball, _paddle) {
     let diff = 0
 
     if (_ball.x < _paddle.x) {
@@ -90,135 +117,152 @@
       _ball.body.velocity.x = (-10 * diff)
     } else if (_ball.x > _paddle.x) {
       //  Ball is on the right-hand side of the paddle
-      diff = _ball.x -_paddle.x
+      diff = _ball.x - _paddle.x
       _ball.body.velocity.x = (10 * diff)
     } else {
       //  Ball is perfectly in the middle
       //  Add a little random X to stop it bouncing straight up!
-      _ball.body.velocity.x = 2 + Math.random() * 8
+      _ball.body.velocity.x = 2 + (Math.random() * 8)
     }
+  }
+
+  window.addBricks = function() {
+    for (let y = 0; y < 4; y += 1) {
+      for (let x = 0; x < 15; x += 1) {
+        brick = bricks.create(120 + (x * 36), 100 + (y * 52), "breakout", `brick_${y+1}_1.png`)
+        brick.body.bounce.set(1)
+        brick.body.immovable = true
+      }
+    }
+  }
+
+  window.addPaddle = function() {
+    paddle = game.add.sprite(game.world.centerX, 500, "breakout", "paddle_big.png")
+    paddle.anchor.setTo(0.5, 0.5)
+
+    game.physics.enable(paddle, Phaser.Physics.ARCADE)
+
+    paddle.body.collideWorldBounds = true
+    paddle.body.bounce.set(1)
+    paddle.body.immovable = true
+  }
+
+  window.addBall = function() {
+    ball = game.add.sprite(game.world.centerX, paddle.y - 16, "breakout", "ball_1.png")
+    ball.anchor.set(0.5)
+    ball.checkWorldBounds = true
+
+    game.physics.enable(ball, Phaser.Physics.ARCADE)
+
+    ball.body.collideWorldBounds = true
+    ball.body.bounce.set(1)
+
+    ball.animations.add("spin", [
+      "ball_1.png", "ball_2.png", "ball_3.png", "ball_4.png", "ball_5.png"
+    ], 50, true, false)
+
+    ball.events.onOutOfBounds.add(ballLost, this)
+  }
+
+  window.addIntroText = function() {
+    const whiteFont = {font: "20px Arial", fill: "#ffffff", align: "left"}
+
+    scoreText = game.add.text(32, 550, "score: 0", whiteFont)
+    livesText = game.add.text(680, 550, "lives: 3", whiteFont)
+    introText = game.add.text(game.world.centerX, 400, "- click to start -", {font: "40px Arial", fill: "#ffffff", align: "center"})
+    introText.anchor.setTo(0.5, 0.5)
+  }
+
+  window.handleBallOnPaddleCollision = function() {
+    if (ballOnPaddle) {
+      ball.body.x = paddle.x
+    } else {
+      game.physics.arcade.collide(ball, paddle, ballHitPaddle, null, this)
+      game.physics.arcade.collide(ball, bricks, ballHitBrick, null, this)
+    }
+  }
+
+  window.movePaddle = function() {
+    paddle.x = game.input.x
+
+    if (paddle.x < 24) {
+      paddle.x = 24
+    } else if (paddle.x > game.width - 24) {
+      paddle.x = game.width - 24
+    }
+  }
+
+  window.preload = function() {
+    game.load.image("sky", "static/img/icons/android-chrome-512x512.png")
+    game.load.atlas("breakout", "static/games/breakout.png", "static/games/breakout.json")
+  }
+
+  window.create = function() {
+    init()
+
+    addBricks()
+    addPaddle()
+    addBall()
+
+    addIntroText()
+
+    // Trigger releaseBall on Input
+    game.input.onDown.add(releaseBall, this)
+  }
+
+  window.update = function() {
+    movePaddle()
+    handleBallOnPaddleCollision()
   }
 
   export default {
     name: "phaser",
-    data: () => ({
-      msg: "Hello World",
-      game: null,
-      color: null,
-      colorRecord: null
-    }),
     components: {
       "code-editor": CodeEditor
     },
     mounted() {
-      if (this.game == null) {
-        this.game = new Phaser.Game("100vw", "100vh", Phaser.AUTO, this.$refs.gameview, {
-          preload: this.preload,
-          create: this.create,
-          update: this.update
+      // if (!game)
+      //   this.start()
+      window.start = this.start
+    },
+    methods: {
+      start() {
+        if (window.game)
+          window.game.destroy()
+        window.game = new Phaser.Game("85%", "100%", Phaser.AUTO, this.$refs.gameview, {
+          preload,
+          create,
+          update
         }, true)
       }
     },
-    methods: {
-      preload() {
-        const game = this.game
-
-        game.load.image("sky", "static/img/icons/android-chrome-512x512.png")
-        game.load.atlas("breakout", "static/games/breakout.png", "static/games/breakout.json")
-      },
-      create() {
-        const game = this.game
-
-        game.physics.startSystem(Phaser.Physics.ARCADE)
-        game.physics.arcade.checkCollision.down = false
-
-        bricks = game.add.group()
-        bricks.enableBody = true
-        bricks.physicsBodyType = Phaser.Physics.ARCADE
-
-        for (let y = 0; y < 4; y += 1) {
-          for (let x = 0; x < 15; x += 1) {
-            brick = bricks.create(120 + (x * 36), 100 + (y * 52), "breakout", `brick_${y+1}_1.png`)
-            brick.body.bounce.set(1)
-            brick.body.immovable = true
-          }
-        }
-
-        paddle = game.add.sprite(game.world.centerX, 500, "breakout", "paddle_big.png")
-        paddle.anchor.setTo(0.5, 0.5)
-
-        game.physics.enable(paddle, Phaser.Physics.ARCADE)
-
-        paddle.body.collideWorldBounds = true
-        paddle.body.bounce.set(1)
-        paddle.body.immovable = true
-
-        ball = game.add.sprite(game.world.centerX, paddle.y - 16, "breakout", "ball_1.png")
-        ball.anchor.set(0.5)
-        ball.checkWorldBounds = true
-
-        game.physics.enable(ball, Phaser.Physics.ARCADE)
-
-        ball.body.collideWorldBounds = true
-        ball.body.bounce.set(1)
-
-        ball.animations.add("spin", [ "ball_1.png", "ball_2.png", "ball_3.png", "ball_4.png", "ball_5.png" ], 50, true, false)
-
-        ball.events.onOutOfBounds.add(ballLost, this)
-
-        const whiteFont = {font: "20px Arial", fill: "#ffffff", align: "left"}
-        scoreText = game.add.text(32, 550, "score: 0", whiteFont)
-        livesText = game.add.text(680, 550, "lives: 3", whiteFont)
-        introText = game.add.text(game.world.centerX, 400, "- click to start -", {font: "40px Arial", fill: "#ffffff", align: "center"})
-        introText.anchor.setTo(0.5, 0.5)
-
-        game.input.onDown.add(releaseBall, this)
-      },
-      update() {
-        const game = this.game
-
-        paddle.x = game.input.x
-
-        if (paddle.x < 24) {
-          paddle.x = 24
-        } else if (paddle.x > game.width - 24) {
-          paddle.x = game.width - 24
-        }
-
-        if (ballOnPaddle) {
-          ball.body.x = paddle.x
-        } else {
-          game.physics.arcade.collide(ball, paddle, ballHitPaddle, null, this)
-          game.physics.arcade.collide(ball, bricks, ballHitBrick, null, this)
-        }
-      }
-    },
     destroyed() {
-      this.game.destroy()
+      if (window.game)
+        window.game.destroy()
     },
     watch() {
       this.$nextTick(() => {
-        this.game.update()
+        window.game.update()
       })
     }
   }
 </script>
 
 <style lang="sass" scoped>
+  @keyframes rotatehue
+    from
+      filter: hue-rotate(0deg)
+    to
+      filter: hue-rotate(360deg)
+
   .game
     position: fixed
     left: 0
     top: 0
-    width: 70%
+    width: 60%
     height: 100%
-    background: linear-gradient(to left, rgb(71, 118, 230), rgb(142, 84, 233))
+    // background: linear-gradient(to left, rgb(71, 118, 230), rgb(142, 84, 233))
+    background: #2d2d30
+    // animation: rotatehue 1s ease-in-out none infinite
     overflow: hidden
-
-  .editor
-    position: fixed
-    right: 0
-    top: 0
-    width: 30%
-    height: 100%
-    z-index: 1
 </style>
