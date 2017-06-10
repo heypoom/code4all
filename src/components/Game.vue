@@ -141,7 +141,7 @@
   }
 
   window.addPaddle = function() {
-    paddle = game.add.sprite(game.world.centerX, 500, "breakout", "paddle_big.png")
+    paddle = game.add.sprite(game.world.centerX, 520, "paddle")
     paddle.anchor.setTo(0.5, 0.5)
 
     game.physics.enable(paddle, Phaser.Physics.ARCADE)
@@ -190,15 +190,15 @@
     paddle.x = game.input.x
 
     if (paddle.x < 24) {
-      paddle.x = 24
+      paddle.x = 25
     } else if (paddle.x > game.width - 24) {
       paddle.x = game.width - 24
     }
   }
 
   window.preload = function() {
-    game.load.image("sky", "static/img/icons/android-chrome-512x512.png")
     game.load.atlas("breakout", "static/games/breakout.png", "static/games/breakout.json")
+    game.load.image("paddle", "static/games/paddle.png")
   }
 
   window.create = function() {
@@ -289,8 +289,8 @@
     // background: linear-gradient(27deg, #151515 5px, transparent 5px) 0 5px, linear-gradient(207deg, #151515 5px, transparent 5px) 10px 0px, linear-gradient(27deg, #222 5px, transparent 5px) 0px 10px, linear-gradient(207deg, #222 5px, transparent 5px) 10px 5px, linear-gradient(90deg, #1b1b1b 10px, transparent 10px), linear-gradient(#1d1d1d 25%, #1a1a1a 25%, #1a1a1a 50%, transparent 50%, transparent 75%, #242424 75%, #242424)
     // background-color: #131313
     // background-size: 20px 20px
-    background: url(http://kazzkiq.github.io/CodeFlask.js/img/bg-main_2x.png) #48466d;
-    background-size: 188px auto;
+    background: url(http://kazzkiq.github.io/CodeFlask.js/img/bg-main_2x.png) #48466d
+    background-size: 188px auto
     // animation: rotatehue 1s ease-in-out none infinite
     overflow: hidden
 
@@ -323,5 +323,6 @@
       margin-top: 0.5em
 
     b
-      font-weight: 500
+      color: #e74c3c
+      font-weight: 400
 </style>

@@ -1,5 +1,7 @@
 <template lang="pug">
   .pane
+    .titlebar Code Editor
+      .buttons
     editor(ref="editor" v-model="code" @init="init()" lang="javascript" theme="tomorrow" width="100%" height="100%")
     button.exec(@click="run") Run Code
 </template>
@@ -14,9 +16,11 @@
   Welcome to Code4Fun!
 */
 
+// "const" is how you define a variable.
+const velocity = 0.0
+
 // This will start the game.
 start()
-
 `
 
   /* eslint-disable */
@@ -57,14 +61,17 @@ start()
           if (intersects(range))
             console.log("READ ONLY!")
             return
+          console.log("NOT REALLY!")
           next()
         }
 
         editor.keyBinding.addKeyboardHandler({
           handleKeyboard: (data, hash, keyString, keyCode, event) => {
             if (hash === -1 || (keyCode <= 40 && keyCode >= 37))
+              console.log("Event False Lolz")
               return false
             if (intersects(range))
+              console.log("Intersect = Disable")
               return {command: "null", passEvent: false}
           }
         })
@@ -90,6 +97,36 @@ start()
 </script>
 
 <style lang="sass">
+  .readonly-highlight
+    position: absolute
+    background-color: red
+    opacity: 0.2
+</style>
+
+<style lang="sass" scoped>
+  .titlebar
+    background: #ececec
+    padding: 0.6rem 0
+    font-family: "Roboto"
+    line-height: 1rem
+    font-size: 0.9rem
+    position: relative
+    color: #a5a5a5
+    border-bottom: 1px solid #e0e0e0
+    text-align: center
+
+    .buttons
+      position: absolute
+      top: 0
+      left: 0
+      margin-top: 12px
+      margin-left: 35px
+      width: 11px
+      height: 11px
+      background: #f39c12
+      border-radius: 50%
+      box-shadow: -20px 0 0 #27ae60, 20px 0 0 #e74c3c
+
   .pane
     position: fixed
     right: 0
@@ -104,6 +141,7 @@ start()
     z-index: 5
     right: 2em
     bottom: 2em
+    cursor: pointer
 
     font-family: "Roboto"
     font-size: 1em
