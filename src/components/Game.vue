@@ -2,6 +2,10 @@
   .root
     code-editor
     .game(ref="gameview")
+      .blank(v-if="!game")
+        .card
+          h1 Let's Get Started!
+          h2 Just hit that <b>Run Code</b> Button on the Right.
 </template>
 
 <script>
@@ -217,28 +221,49 @@
 
   export default {
     name: "phaser",
+    data: () => ({game: false}),
     components: {
       "code-editor": CodeEditor
     },
     mounted() {
-      // if (!game)
-      //   this.start()
       window.start = this.start
     },
     methods: {
       start() {
         if (window.game)
-          window.game.destroy()
+          this.reset()
+
         window.game = new Phaser.Game("85%", "100%", Phaser.AUTO, this.$refs.gameview, {
           preload,
           create,
           update
         }, true)
+
+        this.game = true
+      },
+      reset() {
+        window.game.destroy()
+
+        window.game = null
+        window.ball = null
+        window.paddle = null
+        window.brick = null
+        window.bricks = null
+
+        window.ballOnPaddle = true
+
+        window.lives = 19
+        window.score = 0
+
+        window.scoreText = null
+        window.livesText = null
+        window.introText = null
       }
     },
     destroyed() {
       if (window.game)
         window.game.destroy()
+        this.game = false
     },
     watch() {
       this.$nextTick(() => {
@@ -261,8 +286,42 @@
     top: 0
     width: 60%
     height: 100%
-    // background: linear-gradient(to left, rgb(71, 118, 230), rgb(142, 84, 233))
-    background: #2d2d30
+    // background: linear-gradient(27deg, #151515 5px, transparent 5px) 0 5px, linear-gradient(207deg, #151515 5px, transparent 5px) 10px 0px, linear-gradient(27deg, #222 5px, transparent 5px) 0px 10px, linear-gradient(207deg, #222 5px, transparent 5px) 10px 5px, linear-gradient(90deg, #1b1b1b 10px, transparent 10px), linear-gradient(#1d1d1d 25%, #1a1a1a 25%, #1a1a1a 50%, transparent 50%, transparent 75%, #242424 75%, #242424)
+    // background-color: #131313
+    // background-size: 20px 20px
+    background: url(http://kazzkiq.github.io/CodeFlask.js/img/bg-main_2x.png) #48466d;
+    background-size: 188px auto;
     // animation: rotatehue 1s ease-in-out none infinite
     overflow: hidden
+
+  .blank
+    display: flex
+    justify-content: center
+    align-items: center
+    height: 100%
+
+    .card
+      background: white
+      border-radius: 8px
+      padding: 1.5em 2.3em
+      border-bottom: 3px solid #e74c3c
+      box-shadow: 0 38px 43px rgba(0,0,0,.09)
+
+    h1, h2
+      margin: 0
+      color: #2d2d30
+      text-align: center
+      font-family: "Roboto"
+      font-weight: 300
+
+    h1
+      color: #2d2d30
+      font-size: 2.3em
+
+    h2
+      color: #2d2d30
+      margin-top: 0.5em
+
+    b
+      font-weight: 500
 </style>

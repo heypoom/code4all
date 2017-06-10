@@ -17,9 +17,23 @@
 // This will start the game.
 start()
 
-  `
+`
 
-  /* eslint no-eval: 0 */
+  /* eslint-disable */
+
+  const Range = ace.acequire("ace/range").Range
+
+  function before(obj, method, wrapper) {
+    var orig = obj[method]
+    obj[method] = function() {
+        var args = Array.prototype.slice.call(arguments)
+        return wrapper.call(this, function(){
+          return orig.apply(obj, args)
+        }, args)
+    }
+
+    return obj[method]
+  }
 
   export default {
     data: () => ({
@@ -31,14 +45,45 @@ start()
     methods: {
       init() {
         const editor = this.$refs.editor.editor
-        // const session = editor.getSession()
+        const session = editor.getSession()
+        const range = new Range(1, 4, 1, 10)
+        const markerId = session.addMarker(range, "readonly-highlight")
 
-        editor.setOptions({
-          fontSize: "1.2em"
+        function intersects(range) {
+          return editor.getSelectionRange().intersects(range);
+        }
+
+        function preventReadonly(next, args) {
+          if (intersects(range))
+            console.log("READ ONLY!")
+            return
+          next()
+        }
+
+        editor.keyBinding.addKeyboardHandler({
+          handleKeyboard: (data, hash, keyString, keyCode, event) => {
+            if (hash === -1 || (keyCode <= 40 && keyCode >= 37))
+              return false
+            if (intersects(range))
+              return {command: "null", passEvent: false}
+          }
         })
+
+        before(editor, "onPaste", preventReadonly)
+        before(editor, "onCut", preventReadonly)
+
+        range.start = session.doc.createAnchor(range.start)
+        range.end = session.doc.createAnchor(range.end)
+        range.end.$insertRight = true
+
+        editor.setOptions({fontSize: "1.1em"})
       },
       run() {
-        eval(this.code)
+        try {
+          eval(this.code)
+        } catch (err) {
+          console.error(err)
+        }
       }
     }
   }

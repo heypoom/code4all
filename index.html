@@ -35,28 +35,40 @@
         align-items: center;
         min-height: 100vh;
 
-        background: #2d2d30;
+        /*background: linear-gradient(27deg, #151515 5px, transparent 5px) 0 5px, linear-gradient(207deg, #151515 5px, transparent 5px) 10px 0px, linear-gradient(27deg, #222 5px, transparent 5px) 0px 10px, linear-gradient(207deg, #222 5px, transparent 5px) 10px 5px, linear-gradient(90deg, #1b1b1b 10px, transparent 10px), linear-gradient(#1d1d1d 25%, #1a1a1a 25%, #1a1a1a 50%, transparent 50%, transparent 75%, #242424 75%, #242424);
+        background-color: #131313;
+        background-size: 20px 20px;*/
+        background: url(http://kazzkiq.github.io/CodeFlask.js/img/bg-main_2x.png) #48466d;
+        background-size: 188px auto;
       }
 
-      h1, h2 {
+      .app-loading {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5em 2.3em;
+        border-bottom: 3px solid #e74c3c;
+        box-shadow: 0 38px 43px rgba(0,0,0,.09);
+      }
+
+      .app-loading h1, .app-loading h2 {
         margin: 0;
-        color: white;
+        color: #2d2d30;
         text-align: center;
         font-family: Roboto;
         font-weight: 300;
       }
 
-      h1 {
-        font-size: 3em;
+      .app-loading h1 {
+        font-size: 2.3em;
         margin-bottom: 0.2em;
       }
     </style>
   </head>
   <body>
     <div id="app">
-      <div>
-        <h1>CODE4ALL IS LOADING</h1>
-        <h2>PLEASE WAIT...</h2>
+      <div class="app-loading">
+        <h1><b>CODE4ALL</b> is Loading.</h1>
+        <h2>Please Wait...</h2>
       </div>
     </div>
     <!-- Todo: only include in production -->
