@@ -214,6 +214,8 @@ start()
       window.log = this.log
       window.cheat = this.cheat
       window.reset = this.reset
+      window.save = this.save
+      window.load = this.load
     },
     components: {
       editor: AceEditor
@@ -267,6 +269,17 @@ start()
       reset() {
         this.code = initialCode
         return "Starting Over. Practice Makes Perfect!"
+      },
+      save(name) {
+        localStorage.setItem(`code_${name}`, this.code)
+        window.log(`Saved as code_${name}.`)
+      },
+      load(name) {
+        const code = localStorage.getItem(`code_${name}`)
+        if (code) {
+          window.log(`Loaded as code_${name}`)
+          this.code = code
+        }
       }
     }
   }
