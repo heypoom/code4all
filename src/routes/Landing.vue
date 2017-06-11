@@ -2,10 +2,10 @@
   .root
     header.main
       .header-overlay
-      h1 Code4Fun
-      //- .buttons
-      //-   .button Play
-      //-   .button Play
+      .header-text
+        h1 #CODE4ALL
+        img.logo(src="/static/logo.png")
+        h2 เล่นเกมมาเยอะแล้ว มาสร้างเองบ้างสิ!
     main
       .row.center-xs(v-for="j in [1, 2, 3]")
         .col-xs-12.col-sm-6.col-md-3.cardholder(v-for="i in [1, 2, 3, 4]")
@@ -30,6 +30,14 @@
   $primary: #2ecc71
   $overlay-image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?crop=fit"
 
+  .logo
+    position: absolute
+    top: 2em
+    left: 2em
+    height: 5em
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16), 0 2px 10px 0 rgba(0,0,0,0.12)
+    border-radius: 35%
+
   header.main
     position: relative
     display: flex
@@ -45,8 +53,8 @@
     h1
       margin: 0
       font-family: "Roboto"
-      font-weight: 600
-      font-size: 3.6em
+      font-weight: 300
+      font-size: 3.2em
 
   .header-overlay
     position: absolute
@@ -54,7 +62,7 @@
     height: 100%
     top: 0
     left: 0
-    opacity: 0.05
+    opacity: 0.1
     background-image: url($overlay-image)
     background-size: cover
     background-position: center center

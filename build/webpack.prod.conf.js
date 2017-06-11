@@ -13,12 +13,33 @@ var SWPrecacheWebpackPlugin = require('sw-precache-webpack-plugin')
 
 var env = config.build.env
 
+const phaserModule = path.join(__dirname, "../node_modules/phaser/")
+const phaser = path.join(phaserModule, "build/custom/phaser-split.js")
+const pixi = path.join(phaserModule, "build/custom/pixi.js")
+const p2 = path.join(phaserModule, "build/custom/p2.js")
+
+console.log(phaser, pixi, p2)
+
+const rules = [
+  ...utils.styleLoaders({
+    sourceMap: config.build.productionSourceMap,
+    extract: true
+  }),
+  {test: /pixi.js/, use: ["script-loader"]},
+  {test: /p2.js/, use: ["script-loader"]}
+]
+
 var webpackConfig = merge(baseWebpackConfig, {
   module: {
-    rules: utils.styleLoaders({
-      sourceMap: config.build.productionSourceMap,
-      extract: true
-    })
+    rules
+  },
+  resolve: {
+    alias: {
+      phaser,
+      pixi,
+      "pixi.js": pixi,
+      p2
+    }
   },
   devtool: config.build.productionSourceMap ? '#source-map' : false,
   output: {

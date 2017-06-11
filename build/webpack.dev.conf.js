@@ -18,8 +18,6 @@ const phaser = path.join(phaserModule, "build/custom/phaser-split.js")
 const pixi = path.join(phaserModule, "build/custom/pixi.js")
 const p2 = path.join(phaserModule, "build/custom/p2.js")
 
-console.log(phaser, pixi, p2)
-
 const rules = [
   ...utils.styleLoaders({sourceMap: config.dev.cssSourceMap}),
   {test: /pixi.js/, use: ["script-loader"]},

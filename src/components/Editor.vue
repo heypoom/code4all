@@ -9,7 +9,7 @@
       span Run Code
     //- img.mascot(src="/static/satania.png")
     .console-wrapper
-      svg.clear(viewBox="0 0 32 32" @click="logs = [{text: '> Log Cleared.'}]")
+      svg.clear(viewBox="0 0 32 32" @click="logs = []")
         path(d="M0 28h18v4h-18zM28 4h-9.455l-5.743 22h-4.134l5.743-22h-8.411v-4h22zM29.055 32l-4.055-4.055-4.055 4.055-1.945-1.945 4.055-4.055-4.055-4.055 1.945-1.945 4.055 4.055 4.055-4.055 1.945 1.945-4.055 4.055 4.055 4.055z")
       .console
         .log(:class="getType(log.type)" v-for="log in logs") {{log.text}}
@@ -167,7 +167,7 @@ window.ballHitPaddle = function(ball, paddle) {
   }
 }
 
-window.movePaddle = function() {
+function movePaddle() {
   paddle.x = game.input.x
 
   if (paddle.x < 24) {
@@ -212,6 +212,8 @@ start()
     }),
     mounted() {
       window.log = this.log
+      window.cheat = this.cheat
+      window.reset = this.reset
     },
     components: {
       editor: AceEditor
@@ -260,6 +262,11 @@ start()
       },
       cheat() {
         this.code = completedCode
+        return "Baka! Cheater!! Putang Ina Mo!!! -//-"
+      },
+      reset() {
+        this.code = initialCode
+        return "Starting Over. Practice Makes Perfect!"
       }
     }
   }
