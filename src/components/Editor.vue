@@ -1,5 +1,5 @@
 <template lang="pug">
-  .pane(v-shortkey.once="['ctrl', 'alt', 'o']" @shortkey="cheat()")
+  .pane(v-shortkey="['ctrl', 'alt', 'o']" @shortkey="cheat()")
     .titlebar Code Editor
       .buttons
     editor(ref="editor" v-model="code" @init="init()" lang="javascript" theme="tomorrow" width="100%" height="100%")
@@ -12,7 +12,8 @@
       svg.clear(viewBox="0 0 32 32" @click="logs = [{text: '> Log Cleared.'}]")
         path(d="M0 28h18v4h-18zM28 4h-9.455l-5.743 22h-4.134l5.743-22h-8.411v-4h22zM29.055 32l-4.055-4.055-4.055 4.055-1.945-1.945 4.055-4.055-4.055-4.055 1.945-1.945 4.055 4.055 4.055-4.055 1.945 1.945-4.055 4.055 4.055 4.055z")
       .console
-        .log(:class="{'err': log.type === 'err'}" v-for="log in logs") {{log.text}}
+        .log(:class="getType(log.type)" v-for="log in logs") {{log.text}}
+      input.term(@keyup.13="term" v-model="cmd")
 </template>
 
 <script>
@@ -28,18 +29,21 @@
 
   This is the Code Editor, where magic happens.
   We're going to create our first breakout game!
+
+  Instructions are in the Task menu on the left.
 */
 
 // Function for adding in brick(s).
 function addBricks() {
-  // You create a variable by using the "const" keyword, then set it to something.
-  // Create a brick in the specified coordinates, then use the brick image.
+  // Replace the variables to your likings.
+  // width and height is a number, and the image is the file name.
 
-  // const brick = bricks.create(? + 36, ? + 52, "breakout", "brick_2_1.png")
+  // const brick = bricks.create(width, height, "breakout", image)
 
   // This makes the brick bouncy and not movable.
-  brick.body.bounce.set(1)
-  brick.body.immovable = true
+
+  // brick.body.bounce.set(1)
+  // brick.body.immovable = true
 }
 
 // Runs when the game is created
@@ -57,18 +61,7 @@ start()
 `
 
 
-  const exampleCode = `/*
-  Code4Fun
-*/
-
-/*
-  Welcome to Code4Fun!
-  We're going to create our first game!
-*/
-
-// Could you add in some bricks?
-// It feels kinda lonely here.
-
+  const exampleCode = `
 function addBricks(padding, x = 1, y = 1) {
   // Replace the variables to your likings.
   // width and height is a number, and the image is the file name.
@@ -88,21 +81,18 @@ function create() {
   addBricks(20)
 }
 
-function update() {
-
-}
-
-// This will start the game.
-start()
-
 `
 
   const completedCode = `/*
   Welcome to Code4Fun!
+
+  This is the Code Editor, where magic happens.
+  We're going to create our first breakout game!
+
+  Instructions are in the Task menu on the left.
 */
 
-// Could you add in some bricks?
-// It feels kinda lonely here.
+// Function for adding in brick(s).
 
 function addBricks() {
   const rows = 4
@@ -215,6 +205,7 @@ start()
   export default {
     data: () => ({
       code: initialCode,
+      cmd: "",
       logs: [{
         text: "$ Hey! Here is where your friendly logs and errors live~!"
       }]
@@ -231,6 +222,13 @@ start()
 
         editor.setOptions({fontSize: "1em"})
       },
+      getType(type) {
+        return {
+          err: type === "err",
+          info: type === "info",
+          return: type === "return"
+        }
+      },
       appendLog(text, type) {
         console.info("APPEND_LOG", {text, type})
         this.logs = [...this.logs, {text, type}]
@@ -246,6 +244,17 @@ start()
           eval(code)
         } catch (err) {
           this.appendLog(`> ${err.toString()}`, "err")
+          console.error(err)
+        }
+      },
+      term() {
+        try {
+          let cmd = this.cmd
+          cmd = cmd.replace("console.log", "window.log")
+          const result = eval(cmd)
+          this.appendLog(`>> ${result}`, "return")
+        } catch (err) {
+          this.appendLog(`>> ${err.toString()}`, "err")
           console.error(err)
         }
       },
@@ -301,6 +310,20 @@ start()
     font-family: "Roboto"
     color: white
 
+  .term
+    position: fixed
+    bottom: 0
+    width: 93.3%
+    overflow-x: hidden
+    background: rgb(31, 31, 34)
+    // rgba(0, 0, 0, 0.3)
+    outline: none
+    border: none
+    color: white
+    padding: 0.6em 1em
+    font-family: monospace
+    font-size: 1.15em
+
   .clear
     position: absolute
     top: 1em
@@ -318,6 +341,9 @@ start()
 
     .log.err
       color: #e74c3c
+
+    .log.return
+      color: #bdc3c7
 
   .mascot
     position: absolute
