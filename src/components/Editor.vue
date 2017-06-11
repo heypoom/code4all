@@ -262,7 +262,7 @@ start()
       },
       cheat() {
         this.code = completedCode
-        return "Baka! Cheater!! Putang Ina Mo!!! -//-"
+        return "Baka! Cheater!! -//-"
       },
       reset() {
         this.code = initialCode
