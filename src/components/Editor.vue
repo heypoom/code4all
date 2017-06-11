@@ -1,5 +1,5 @@
 <template lang="pug">
-  .pane(v-shortkey="['ctrl', 'alt', 'o']" @shortkey="cheat()")
+  .pane(v-shortkey="['ctrl', 'enter']" @shortkey="run")
     .titlebar Code Editor
       .buttons
     editor(ref="editor" v-model="code" @init="init()" lang="javascript" theme="tomorrow" width="100%" height="100%")
