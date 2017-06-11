@@ -3,8 +3,16 @@
     .titlebar Code Editor
       .buttons
     editor(ref="editor" v-model="code" @init="init()" lang="javascript" theme="tomorrow" width="100%" height="100%")
-    button.exec(@click="run") Run Code
-    .console
+    button.exec(@click="run")
+      svg(viewBox="0 0 32 32")
+        path(d="M8 6l-4-4h-2v2l4 4zM10 0h2v4h-2zM18 10h4v2h-4zM20 4v-2h-2l-4 4 2 2zM0 10h4v2h-4zM10 18h2v4h-2zM2 18v2h2l4-4-2-2zM31.563 27.563l-19.879-19.879c-0.583-0.583-1.538-0.583-2.121 0l-1.879 1.879c-0.583 0.583-0.583 1.538 0 2.121l19.879 19.879c0.583 0.583 1.538 0.583 2.121 0l1.879-1.879c0.583-0.583 0.583-1.538 0-2.121zM15 17l-6-6 2-2 6 6-2 2z")
+      span Run Code
+    //- img.mascot(src="/static/satania.png")
+    .console-wrapper
+      svg.clear(viewBox="0 0 32 32" @click="logs = [{text: '> Log Cleared.'}]")
+        path(d="M0 28h18v4h-18zM28 4h-9.455l-5.743 22h-4.134l5.743-22h-8.411v-4h22zM29.055 32l-4.055-4.055-4.055 4.055-1.945-1.945 4.055-4.055-4.055-4.055 1.945-1.945 4.055 4.055 4.055-4.055 1.945 1.945-4.055 4.055 4.055 4.055z")
+      .console
+        .log(:class="{'err': log.type === 'err'}" v-for="log in logs") {{log.text}}
 </template>
 
 <script>
@@ -23,16 +31,15 @@
 // Could you add in some bricks?
 // It feels kinda lonely here.
 
-window.addBricks = function() {
-  const rows = 4
-  const columns = 16
+function addBricks() {
+
 }
 
-window.create = function() {
+function create() {
   init()
 }
 
-window.update = function() {
+function update() {
 
 }
 
@@ -47,7 +54,7 @@ start()
 // Could you add in some bricks?
 // It feels kinda lonely here.
 
-window.addBricks = function() {
+function addBricks() {
   const rows = 4
   const columns = 16
 
@@ -66,7 +73,7 @@ window.addBricks = function() {
 
 // What should happen if we launches the ball off the paddle?
 
-window.releaseBall = function() {
+function releaseBall() {
   if (ballOnPaddle) {
     ballOnPaddle = false
     setVelocity(75, 300)
@@ -120,7 +127,17 @@ window.ballHitPaddle = function(ball, paddle) {
   }
 }
 
-window.create = function() {
+window.movePaddle = function() {
+  paddle.x = game.input.x
+
+  if (paddle.x < 24) {
+    paddle.x = 25
+  } else if (paddle.x > game.width - 24) {
+    paddle.x = game.width - 24
+  }
+}
+
+function create() {
   init()
 
   addBricks()
@@ -133,7 +150,7 @@ window.create = function() {
   game.input.onDown.add(releaseBall, this)
 }
 
-window.update = function() {
+function update() {
   movePaddle()
   handleBallOnPaddleCollision()
 }
@@ -143,10 +160,18 @@ start()
 
 `
 
+  /* eslint no-eval: 0 */
+
   export default {
     data: () => ({
-      code: initialCode
+      code: initialCode,
+      logs: [{
+        text: "$ Hey! Here is where your friendly logs and errors live~!"
+      }]
     }),
+    mounted() {
+      window.log = this.log
+    },
     components: {
       editor: AceEditor
     },
@@ -156,11 +181,21 @@ start()
 
         editor.setOptions({fontSize: "1em"})
       },
+      appendLog(text, type) {
+        console.info("APPEND_LOG", {text, type})
+        this.logs = [...this.logs, {text, type}]
+      },
+      log(...args) {
+        this.appendLog(args.join(" "))
+      },
       run() {
         try {
-          /* eslint no-eval: 0 */
-          eval(this.code)
+          let code = this.code
+          code = code.replace("console.log", "window.log")
+          code = code.replace(/function (.*)\(\) {/g, "window.$1 = function() {")
+          eval(code)
         } catch (err) {
+          this.appendLog(`> ${err.toString()}`, "err")
           console.error(err)
         }
       }
@@ -173,6 +208,9 @@ start()
     position: absolute
     background-color: red
     opacity: 0.2
+
+  .ace_editor
+    height: 66% !important
 </style>
 
 <style lang="sass" scoped>
@@ -199,6 +237,44 @@ start()
       border-radius: 50%
       box-shadow: -20px 0 0 #27ae60, 20px 0 0 #e74c3c
 
+  .console-wrapper
+    position: absolute
+    bottom: 0
+    width: 100%
+    height: 28.6%
+    overflow-y: scroll
+    background: #2d2d30
+    z-index: 4
+    font-family: "Roboto"
+    color: white
+
+  .clear
+    position: absolute
+    top: 1em
+    right: 1em
+    width: 1.3em
+    height: 1.3em
+    fill: #e74c3c
+    cursor: pointer
+
+  .console
+    padding: 1em
+
+    .log
+      line-height: 1.6em
+
+    .log.err
+      color: #e74c3c
+
+  .mascot
+    position: absolute
+    left: -8em
+    bottom: 0
+    width: 11em
+    height: auto
+    opacity: 0.93
+    z-index: 5
+
   .pane
     position: fixed
     right: 0
@@ -213,8 +289,13 @@ start()
     z-index: 5
     right: 2em
     bottom: 2em
-    cursor: pointer
 
+    display: flex
+    align-items: center
+    justify-content: center
+
+    cursor: pointer
+    border-radius: 8px
     font-family: "Roboto"
     font-size: 1em
     outline: none
@@ -222,8 +303,18 @@ start()
     padding: 0.6em 1.2em
     color: white
     background: #e74c3c
-    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16), 0 2px 10px 0 rgba(0,0,0,0.12)
+    box-shadow: 0 4px #c0392b
+
+    svg
+      fill: white
+      width: 1.4em
+      height: 1.4em
+      margin-right: 0.5em
 
     &:hover
+      bottom: 2.03em
+      box-shadow: 0 2px #c0392b
+
+    &:active
       background: #c0392b
 </style>
