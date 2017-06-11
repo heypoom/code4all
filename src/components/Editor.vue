@@ -21,6 +21,8 @@
 
   import "vue2-ace-editor/node_modules/brace/mode/javascript"
   import "vue2-ace-editor/node_modules/brace/theme/tomorrow"
+  import "vue2-ace-editor/node_modules/brace/ext/language_tools"
+  import "vue2-ace-editor/node_modules/brace/ext/searchbox"
 
   /* eslint no-unused-vars: 0 */
 
@@ -224,7 +226,12 @@ start()
       init() {
         const editor = this.$refs.editor.editor
 
-        editor.setOptions({fontSize: "1em"})
+        editor.setOptions({
+          fontSize: "1em",
+          enableSnippets: true,
+          enableBasicAutocompletion: true,
+          enableLiveAutocompletion: true
+        })
       },
       getType(type) {
         return {
@@ -291,7 +298,7 @@ start()
     background-color: red
     opacity: 0.2
 
-  .ace_editor
+  .ace_editor:not(.ace_autocomplete)
     height: 66% !important
 </style>
 
