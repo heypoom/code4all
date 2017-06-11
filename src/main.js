@@ -1,4 +1,5 @@
 import Vue from "vue"
+import VueShortKey from "vue-shortkey"
 
 import App from "./components/App"
 import router from "./routes"
@@ -6,8 +7,9 @@ import store from "./store"
 
 Vue.config.productionTip = false
 
-/* eslint-disable no-new */
-new Vue({
+Vue.use(VueShortKey)
+
+window.$vm = new Vue({
   el: "#app",
   router,
   store,

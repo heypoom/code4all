@@ -5412,6 +5412,12 @@ vue-router@^2.3.1:
   version "2.5.3"
   resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-2.5.3.tgz#073783f564b6aece6c8a59c63e298dc2aabfb51b"
 
+vue-shortkey@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/vue-shortkey/-/vue-shortkey-2.1.0.tgz#836f37c47e9a4404fed15c139397fc058b98bb85"
+  dependencies:
+    vue "^2.1.0"
+
 vue-style-loader@^3.0.0, vue-style-loader@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/vue-style-loader/-/vue-style-loader-3.0.1.tgz#c8b639bb2f24baf9d78274dc17e4f264c1deda08"
@@ -5437,7 +5443,7 @@ vue2-ace-editor@^0.0.3:
     brace "^0.8.0"
     emmet "git+https://github.com/cloud9ide/emmet-core.git#41973fcc70392864c7a469cf5dcd875b88b93d4a"
 
-vue@^2.3.3:
+vue@^2.1.0, vue@^2.3.3:
   version "2.3.4"
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.3.4.tgz#5ec3b87a191da8090bbef56b7cfabd4158038171"
 

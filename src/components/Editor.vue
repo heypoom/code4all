@@ -1,5 +1,5 @@
 <template lang="pug">
-  .pane
+  .pane(v-shortkey.once="['ctrl', 'alt', 'o']" @shortkey="cheat()")
     .titlebar Code Editor
       .buttons
     editor(ref="editor" v-model="code" @init="init()" lang="javascript" theme="tomorrow" width="100%" height="100%")
@@ -25,18 +25,67 @@
 
   const initialCode = `/*
   Welcome to Code4Fun!
+
+  This is the Code Editor, where magic happens.
+  We're going to create our first breakout game!
+*/
+
+// Function for adding in brick(s).
+function addBricks() {
+  // You create a variable by using the "const" keyword, then set it to something.
+  // Create a brick in the specified coordinates, then use the brick image.
+
+  // const brick = bricks.create(? + 36, ? + 52, "breakout", "brick_2_1.png")
+
+  // This makes the brick bouncy and not movable.
+  brick.body.bounce.set(1)
+  brick.body.immovable = true
+}
+
+// Runs when the game is created
+function create() {
+  init()
+}
+
+// Runs everytime the game is updated.
+function update() {
+
+}
+
+// This will start the game.
+start()
+`
+
+
+  const exampleCode = `/*
+  Code4Fun
+*/
+
+/*
+  Welcome to Code4Fun!
   We're going to create our first game!
 */
 
 // Could you add in some bricks?
 // It feels kinda lonely here.
 
-function addBricks() {
+function addBricks(padding, x = 1, y = 1) {
+  // Replace the variables to your likings.
+  // width and height is a number, and the image is the file name.
+  // const brick = bricks.create(width, height, "breakout", image)
 
+  // This makes the brick bouncy and not movable.
+  brick.body.bounce.set(1)
+  brick.body.immovable = true
 }
 
 function create() {
   init()
+
+  addText(50, 50, "Hello World", "60px", "white")
+  setBackground("teal")
+
+  addBricks(20)
 }
 
 function update() {
@@ -45,6 +94,7 @@ function update() {
 
 // This will start the game.
 start()
+
 `
 
   const completedCode = `/*
@@ -198,6 +248,9 @@ start()
           this.appendLog(`> ${err.toString()}`, "err")
           console.error(err)
         }
+      },
+      cheat() {
+        this.code = completedCode
       }
     }
   }
